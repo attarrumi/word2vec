@@ -117,13 +117,40 @@ func (w2v *vocabulary) GetSimilarWords(word string, topN int) []string {
 	return similarWords
 }
 
+func (v *vocabulary) GetSimilarFromVector(vec []float64, topN int) []string {
+	similarWords := []string{}
+	similarWordsScore := []float64{}
+	for w, e := range v.words {
+
+		score := cosineSimilarity(vec, e.vector)
+		if len(similarWords) < topN {
+			similarWords = append(similarWords, w)
+			similarWordsScore = append(similarWordsScore, score)
+		} else {
+			minScore := math.MaxFloat64
+			minIndex := -1
+			for i, s := range similarWordsScore {
+				if s < minScore {
+					minScore = s
+					minIndex = i
+				}
+			}
+			if score > minScore {
+				similarWords[minIndex] = w
+				similarWordsScore[minIndex] = score
+			}
+		}
+	}
+	return similarWords
+}
+
 func (v *vocabulary) GetWordFromVector(vector []float64) (string, error) {
 	var (
 		minDistance float64 = math.MaxFloat64
 		word        string
 	)
 	for w, e := range v.words {
-		distance := cosineSimilarity(e.vector, vector)
+		distance := cosineSimilarity(vector, e.vector)
 		if distance < minDistance {
 			minDistance = distance
 			word = w
@@ -134,6 +161,7 @@ func (v *vocabulary) GetWordFromVector(vector []float64) (string, error) {
 	}
 	return word, nil
 }
+
 func sigmoid(x float64) float64 {
 	return 1 / (1 + math.Exp(-x))
 }
