@@ -31,7 +31,12 @@ type vocabulary struct {
 func NewVocabulary(alpha float64, iterations, windowSize, vectorSize, minCount int) *vocabulary {
 
 	return &vocabulary{
-		words: make(map[string]*word),
+		words:      make(map[string]*word),
+		alpha:      alpha,
+		iterations: iterations,
+		windowSize: windowSize,
+		vectorSize: vectorSize,
+		minCount:   minCount,
 	}
 }
 
