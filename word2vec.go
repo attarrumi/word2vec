@@ -1,6 +1,7 @@
 package word2vec
 
 import (
+	"errors"
 	"log"
 	"math"
 	"strings"
@@ -116,6 +117,23 @@ func (w2v *vocabulary) GetSimilarWords(word string, topN int) []string {
 	return similarWords
 }
 
+func (v *vocabulary) GetWordFromVector(vector []float64) (string, error) {
+	var (
+		minDistance float64 = math.MaxFloat64
+		word        string
+	)
+	for w, e := range v.words {
+		distance := cosineSimilarity(e.vector, vector)
+		if distance < minDistance {
+			minDistance = distance
+			word = w
+		}
+	}
+	if word == "" {
+		return "", errors.New("Word not found")
+	}
+	return word, nil
+}
 func sigmoid(x float64) float64 {
 	return 1 / (1 + math.Exp(-x))
 }
